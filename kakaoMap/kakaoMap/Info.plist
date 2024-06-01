@@ -2,10 +2,14 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict/>
+	</array>
 	<key>KAKAO_APP_KEY</key>
-	<string>c29126dde36fc1cf7c46704d438f71c5</string>
+	<string>49e2d80006547335efe607df9bf2aa43</string>
 	<key>KAKAO_PHASE</key>
-	<string>alpha/beta/sandbox/</string>
+	<string>alpha/beta /sandbox/</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
