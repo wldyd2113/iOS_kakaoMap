@@ -117,9 +117,9 @@ class ViewController: UIViewController, MapControllerDelegate, CLLocationManager
     
     func addViews() {
         //여기에서 그릴 View(KakaoMap, Roadview)들을 추가한다.
-        let defaultPosition: MapPoint = MapPoint(longitude: 127.108678, latitude: 37.402001)
+        let defaultPosition: MapPoint = MapPoint(longitude: 126.826153, latitude: 37.493912)
         //지도(KakaoMap)를 그리기 위한 viewInfo를 생성
-        let mapviewInfo: MapviewInfo = MapviewInfo(viewName: "mapview", viewInfoName: "map", defaultPosition: defaultPosition, defaultLevel: 7)
+        let mapviewInfo: MapviewInfo = MapviewInfo(viewName: "mapview", viewInfoName: "map", defaultPosition: defaultPosition, defaultLevel: 13)
         
         //KakaoMap 추가.
         mapController?.addView(mapviewInfo)
@@ -239,9 +239,9 @@ class ViewController: UIViewController, MapControllerDelegate, CLLocationManager
         let noti1 = PoiBadge(badgeID: "badge1", image: UIImage(systemName: "message.fill"), offset: CGPoint(x: 0.9, y: 0.1), zOrder: 0)
         let iconStyle1 = PoiIconStyle(symbol: UIImage(systemName: "message"), anchorPoint: CGPoint(x: 0.0, y: 0.5), badges: [noti1])
         let poiStyle = PoiStyle(styleID: "PerLevelStyle", styles: [
-            PerLevelPoiStyle(iconStyle: iconStyle1, level: 5)
+            PerLevelPoiStyle(iconStyle: iconStyle1, level: 13)
         ])
-        manager.addPoiStyle(poiStyle)
+
     }
     
     func createPois() {
@@ -263,6 +263,4 @@ class ViewController: UIViewController, MapControllerDelegate, CLLocationManager
             print("KakaoMap 뷰를 가져오지 못했습니다.")
         }
     }
-    
-    
 }
