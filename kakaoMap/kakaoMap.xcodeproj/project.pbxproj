@@ -300,8 +300,12 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 5CKD3N685F;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = kakaoMap/Info.plist;
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "위치를 권한 획득!!";
+				INFOPLIST_KEY_NSLocationAlwaysUsageDescription = "위치를 권한 획득";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "위치정보";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
@@ -327,8 +331,12 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 5CKD3N685F;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = kakaoMap/Info.plist;
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "위치를 권한 획득!!";
+				INFOPLIST_KEY_NSLocationAlwaysUsageDescription = "위치를 권한 획득";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "위치정보";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
