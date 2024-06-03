@@ -18,6 +18,10 @@ class ViewController: UIViewController, MapControllerDelegate, CLLocationManager
     var _auth: Bool
     var _appear: Bool
     
+    var latitude: Double?
+    var longitude: Double?
+    
+
     required init?(coder aDecoder: NSCoder) {
         _observerAdded = false
         _auth = false
@@ -49,6 +53,11 @@ class ViewController: UIViewController, MapControllerDelegate, CLLocationManager
         locationManager.requestWhenInUseAuthorization() //앱 사용 중에 위치 서비스를 사용할 수 있도록 사용자의 권한을 요청
         locationManager.startUpdatingLocation() //사용자의 현재위치를 알려주는 메소드
         
+        latitude = locationManager.location?.coordinate.latitude
+        longitude = locationManager.location?.coordinate.longitude
+        
+       
+
     }
     override func viewWillAppear(_ animated: Bool) {
         addObservers()
@@ -119,6 +128,9 @@ class ViewController: UIViewController, MapControllerDelegate, CLLocationManager
     //addView 성공 이벤트 delegate. 추가적으로 수행할 작업을 진행한다.
     func addViewSucceeded(_ viewName: String, viewInfoName: String) {
         print("OK") //추가 성공. 성공시 추가적으로 수행할 작업을 진행한다.
+        createLabelLay() // 라벨 레이어 생성
+        createPoiStyle() // POI 스타일 생성
+        createPois() // POI 생성
     }
     
     //addView 실패 이벤트 delegate. 실패에 대한 오류 처리를 진행한다.
@@ -203,6 +215,54 @@ class ViewController: UIViewController, MapControllerDelegate, CLLocationManager
         }
     }
     
-
-
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        let location: CLLocation = locations[locations.count - 1]
+        let longtitude: CLLocationDegrees = location.coordinate.longitude //경도
+        let latitude: CLLocationDegrees = location.coordinate.latitude // 위도
+        
+    }
+    
+    //Poi생셩을 위한 LabelLayer
+    func createLabelLay() {
+        let view = mapController?.getView("mapview") as! KakaoMap
+        let manager = view.getLabelManager()
+        let layerOption = LabelLayerOptions(layerID: "PoiLayer", competitionType: .none, competitionUnit: .symbolFirst, orderType: .rank, zOrder: 0)
+        let _ = manager.addLabelLayer(option: layerOption)
+    }
+    
+    //Poi 표시 스타일 생성
+    func createPoiStyle() {
+        let view = mapController?.getView("mapview") as! KakaoMap
+        let manager = view.getLabelManager()
+        
+        // PoiBadge는 스타일에도 추가될 수 있다. 이렇게 추가된 Badge는 해당 스타일이 적용될 때 함께 그려진다.
+        let noti1 = PoiBadge(badgeID: "badge1", image: UIImage(systemName: "message.fill"), offset: CGPoint(x: 0.9, y: 0.1), zOrder: 0)
+        let iconStyle1 = PoiIconStyle(symbol: UIImage(systemName: "message"), anchorPoint: CGPoint(x: 0.0, y: 0.5), badges: [noti1])
+        let poiStyle = PoiStyle(styleID: "PerLevelStyle", styles: [
+            PerLevelPoiStyle(iconStyle: iconStyle1, level: 5)
+        ])
+        manager.addPoiStyle(poiStyle)
+    }
+    
+    func createPois() {
+        if let view = mapController?.getView("mapview") as? KakaoMap {
+            let manager = view.getLabelManager()
+            let layer = manager.getLabelLayer(layerID: "PoiLayer")
+            let poiOption = PoiOptions(styleID: "PerLevelStyle")
+            poiOption.rank = 0
+            
+            if let poi1 = layer?.addPoi(option: poiOption, at: MapPoint(longitude: 126.826153, latitude: 37.493912)) {
+                let badge = PoiBadge(badgeID: "noti", image: UIImage(systemName: "message.fill"), offset: CGPoint(x: 0, y: 0), zOrder: 1)
+                poi1.addBadge(badge)
+                poi1.show()
+                poi1.showBadge(badgeID: "noti")
+            } else {
+                print("Poi 생성 실패")
+            }
+        } else {
+            print("KakaoMap 뷰를 가져오지 못했습니다.")
+        }
+    }
+    
+    
 }
