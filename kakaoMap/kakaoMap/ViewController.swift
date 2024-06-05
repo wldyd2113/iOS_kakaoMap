@@ -9,6 +9,17 @@ import UIKit
 import KakaoMapsSDK
 import CoreLocation
 
+extension UIColor {
+    convenience init(hex: UInt32) {
+        let red = CGFloat((hex >> 24) & 0xff) / 255.0
+        let green = CGFloat((hex >> 16) & 0xff) / 255.0
+        let blue = CGFloat((hex >> 8) & 0xff) / 255.0
+        let alpha = CGFloat(hex & 0xff) / 255.0
+        self.init(red: red, green: green, blue: blue, alpha: alpha)
+    }
+}
+
+
 class ViewController: UIViewController, MapControllerDelegate, CLLocationManagerDelegate {
     
     var locationManager: CLLocationManager!
@@ -55,7 +66,6 @@ class ViewController: UIViewController, MapControllerDelegate, CLLocationManager
         
         latitude = locationManager.location?.coordinate.latitude
         longitude = locationManager.location?.coordinate.longitude
-        
        
 
     }
@@ -131,6 +141,9 @@ class ViewController: UIViewController, MapControllerDelegate, CLLocationManager
         createLabelLay() // 라벨 레이어 생성
         createPoiStyle() // POI 스타일 생성
         createPois() // POI 생성
+        
+        createRouteStyleSet()
+        createRouteline()
     }
     
     //addView 실패 이벤트 delegate. 실패에 대한 오류 처리를 진행한다.
@@ -263,4 +276,101 @@ class ViewController: UIViewController, MapControllerDelegate, CLLocationManager
             print("KakaoMap 뷰를 가져오지 못했습니다.")
         }
     }
+    
+    // RouteStyleSet을 생성합니다.
+    func createRouteStyleSet() {
+        let mapView = mapController?.getView("mapview") as? KakaoMap
+        let manager = mapView?.getRouteManager()
+        let _ = manager?.addRouteLayer(layerID: "RouteLayer", zOrder: 0)
+        let patternImages = [
+            UIImage(named: "route_pattern_arrow.png"),
+            UIImage(named: "route_pattern_walk.png"),
+            UIImage(named: "route_pattern_long_dot.png")
+        ]
+
+        // StyleSet에 pattern을 추가합니다.
+        let styleSet = RouteStyleSet(styleID: "routeStyleSet1")
+        styleSet.addPattern(RoutePattern(pattern: patternImages[0]!, distance: 60, symbol: nil, pinStart: false, pinEnd: false))
+        styleSet.addPattern(RoutePattern(pattern: patternImages[1]!, distance: 6, symbol: nil, pinStart: true, pinEnd: true))
+        styleSet.addPattern(RoutePattern(pattern: patternImages[2]!, distance: 6, symbol: UIImage(named: "route_pattern_long_airplane.png")!, pinStart: true, pinEnd: true))
+
+        let colors = [
+            UIColor(hex: 0x7796ffff),
+            UIColor(hex: 0x343434ff),
+            UIColor(hex: 0x3396ff00),
+            UIColor(hex: 0xee63ae00)
+        ]
+
+        let strokeColors = [
+            UIColor(hex: 0xffffffff),
+            UIColor(hex: 0xffffffff),
+            UIColor(hex: 0xffffff00),
+            UIColor(hex: 0xffffff00)
+        ]
+
+        let patternIndex = [-1, 0, 1, 2]
+
+        // 총 4개의 스타일을 생성합니다.
+        for index in 0 ..< colors.count {
+            let perLevelStyle = PerLevelRouteStyle(
+                width: 18,
+                color: colors[index],
+                strokeWidth: 4,
+                strokeColor: strokeColors[index],
+                level: 0,
+                patternIndex: patternIndex[index]
+            )
+            let routeStyle = RouteStyle(styles: [perLevelStyle])
+            styleSet.addStyle(routeStyle)
+        }
+
+        manager?.addRouteStyleSet(styleSet)
+        
+        print("Creating route style set...")
+    }
+    // 예시로 사용할 경로 점 배열을 반환하는 함수입니다.
+    func routeSegmentPoints() -> [[MapPoint]] {
+        return [
+            [MapPoint(longitude: 126.826153, latitude: 37.493912), MapPoint(longitude: 126.9816413, latitude: 37.5703772)],
+            [MapPoint(longitude: 126.826153, latitude: 37.493912), MapPoint(longitude: 126.824218, latitude: 37.495744)],
+            [MapPoint(longitude: 126.824218, latitude: 37.495744), MapPoint(longitude: 126.822228, latitude: 37.498853)],
+            [MapPoint(longitude: 126.822228, latitude: 37.498853), MapPoint(longitude: 126.8201086, latitude: 37.5026084)],
+        ]
+    }
+    
+    func createRouteline() {
+        let mapView = mapController?.getView("mapview") as! KakaoMap
+        let manager = mapView.getRouteManager()
+
+        // Route 생성을 위해 RouteLayer를 생성한다.
+        let layer = manager.addRouteLayer(layerID: "RouteLayer", zOrder: 0)
+
+        // Route 생성을 위한 RouteSegment 생성
+        let segmentPoints = routeSegmentPoints()
+        var segments: [RouteSegment] = []
+        var styleIndex: UInt = 0
+
+        for points in segmentPoints {
+            // 경로 포인트로 RouteSegment 생성. 사용할 스타일 인덱스도 지정.
+            let seg = RouteSegment(points: points, styleIndex: styleIndex)
+            segments.append(seg)
+            styleIndex = (styleIndex + 1) % 4
+        }
+
+        // RouteOptions 생성
+        let routeOptions = RouteOptions(styleID: "routeStyleSet1", zOrder: 0)
+
+        // RouteLayer에 Route 추가
+        let route = layer?.addRoute(option: routeOptions, callback: { route in
+            guard let route = route else { return }
+            // Route 객체에 세그먼트를 설정
+            route.changeStyleAndData(styleID: "routeStyleSet1", segments: segments)
+            route.show()
+        })
+    }
+
+
+
+
 }
+
