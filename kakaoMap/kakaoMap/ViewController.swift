@@ -32,6 +32,10 @@ class ViewController: UIViewController, MapControllerDelegate, CLLocationManager
     var latitude: Double?
     var longitude: Double?
     
+    var resultLis = [Place]()
+    
+    
+    
 
     required init?(coder aDecoder: NSCoder) {
         _observerAdded = false
@@ -51,6 +55,13 @@ class ViewController: UIViewController, MapControllerDelegate, CLLocationManager
     override func viewDidLoad() {
         
         super.viewDidLoad()
+        
+        let kakaoSearch = UISearchBar()
+        kakaoSearch.translatesAutoresizingMaskIntoConstraints = false
+        kakaoSearch.placeholder = "장소를 입력해주세요"
+//        self.navigationItem.titleView = kakaoSearch
+        view.addSubview(kakaoSearch)
+        
         mapContainer = self.view as? KMViewContainer
         
         //KMController 생성.
@@ -66,9 +77,33 @@ class ViewController: UIViewController, MapControllerDelegate, CLLocationManager
         
         latitude = locationManager.location?.coordinate.latitude
         longitude = locationManager.location?.coordinate.longitude
+        
+        NSLayoutConstraint.activate([
+            kakaoSearch.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            kakaoSearch.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            kakaoSearch.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            kakaoSearch.heightAnchor.constraint(equalToConstant: 44)
+        ])
        
 
     }
+    
+    //검색URL
+    func fetchGetUrl() {
+        guard let url = URL(string: "kakaomap://open?page=placeSearch") else {
+            print("nil!!")
+            return
+        }
+
+        let task = URLSession.shared.dataTask(with: url) { data, response, error in
+            if let error = error {
+                print("Error: \(error)")
+                return
+            }
+
+        }
+    }
+    
     override func viewWillAppear(_ animated: Bool) {
         addObservers()
         _appear = true

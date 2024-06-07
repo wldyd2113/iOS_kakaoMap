@@ -6,3 +6,11 @@
 //
 
 import Foundation
+
+struct Place {
+    let placeName: String
+    let roadAdressName: String
+    let longitudeX: String
+    let latitudeY: String
+}
+
