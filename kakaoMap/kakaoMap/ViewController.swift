@@ -20,7 +20,7 @@ extension UIColor {
 }
 
 
-class ViewController: UIViewController, MapControllerDelegate, CLLocationManagerDelegate {
+class ViewController: UIViewController, MapControllerDelegate, CLLocationManagerDelegate, UISearchBarDelegate {
     
     var locationManager: CLLocationManager!
     var mapContainer: KMViewContainer?
@@ -29,10 +29,15 @@ class ViewController: UIViewController, MapControllerDelegate, CLLocationManager
     var _auth: Bool
     var _appear: Bool
     
+    var place: String?
+    
     var latitude: Double?
     var longitude: Double?
     
     var resultLis = [Place]()
+    
+    let kakaoSearch = UISearchBar()
+
     
     
     
@@ -55,12 +60,12 @@ class ViewController: UIViewController, MapControllerDelegate, CLLocationManager
     override func viewDidLoad() {
         
         super.viewDidLoad()
-        
-        let kakaoSearch = UISearchBar()
         kakaoSearch.translatesAutoresizingMaskIntoConstraints = false
         kakaoSearch.placeholder = "장소를 입력해주세요"
-//        self.navigationItem.titleView = kakaoSearch
+        kakaoSearch.delegate = self // 서치바 델리게이트 설정
         view.addSubview(kakaoSearch)
+        
+        
         
         mapContainer = self.view as? KMViewContainer
         
@@ -88,21 +93,37 @@ class ViewController: UIViewController, MapControllerDelegate, CLLocationManager
 
     }
     
-    //검색URL
-    func fetchGetUrl() {
-        guard let url = URL(string: "kakaomap://open?page=placeSearch") else {
-            print("nil!!")
+    func searchKakaoMap() {
+        guard let place = place, let latitude = latitude, let longitude = longitude else {
             return
         }
-
-        let task = URLSession.shared.dataTask(with: url) { data, response, error in
-            if let error = error {
-                print("Error: \(error)")
-                return
+        
+        let urlString = "kakaomap://search?q=\(place)&p=\(latitude),\(longitude)"
+        guard let url = URL(string: urlString) else {
+            print("Invalid URL")
+            return
+        }
+        
+        UIApplication.shared.open(url, options: [:]) { success in
+            if !success {
+                print("Failed to open KakaoMap app.")
             }
-
         }
     }
+    
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        guard let searchText = searchBar.text, !searchText.isEmpty else {
+            return
+        }
+        
+        place = searchText
+        
+        searchKakaoMap()
+    }
+    
+
+    
+
     
     override func viewWillAppear(_ animated: Bool) {
         addObservers()
@@ -264,11 +285,30 @@ class ViewController: UIViewController, MapControllerDelegate, CLLocationManager
     }
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        let location: CLLocation = locations[locations.count - 1]
-        let longtitude: CLLocationDegrees = location.coordinate.longitude //경도
-        let latitude: CLLocationDegrees = location.coordinate.latitude // 위도
+        guard let location = locations.last else { return }
+        latitude = location.coordinate.latitude
+        longitude = location.coordinate.longitude
         
+        if let mapView = mapController?.getView("mapview") as? KakaoMap {
+            let mapPoint = MapPoint(longitude: longitude!, latitude: latitude!)
+            let cameraPosition = CameraPosition(target: mapPoint, zoomLevel: 13, rotation: 0, tilt: 0)
+            
+            // CameraUpdate를 생성하는 방법에 따라 코드 수정
+            let cameraUpdate = CameraUpdate.make(cameraPosition: cameraPosition)
+            
+            mapView.moveCamera(cameraUpdate) {
+                print("카메라 이동 성공")
+            }
+        }
     }
+
+
+
+
+
+
+
+
     
     //Poi생셩을 위한 LabelLayer
     func createLabelLay() {
@@ -403,9 +443,5 @@ class ViewController: UIViewController, MapControllerDelegate, CLLocationManager
             route.show()
         })
     }
-
-
-
-
 }
 
